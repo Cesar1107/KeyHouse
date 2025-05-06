@@ -8,9 +8,17 @@ const EditarPropiedad = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState('');
+  const [tipoMensaje, setTipoMensaje] = useState(''); // 'success' o '' para error
   const [propiedad, setPropiedad] = useState({
     titulo: '',
     descripcion: '',
+    habitaciones: '',
+    banos: '',
+    area: '',
+    cocina: false,
+    estrato: '',
+    garaje: false,
+    piscina: false,
     ubicacion: '',
     precio: '',
     disponible: true,
@@ -18,7 +26,8 @@ const EditarPropiedad = () => {
   const [imagenes, setImagenes] = useState([]);
   const [nuevasImagenes, setNuevasImagenes] = useState([]);
   const [preview, setPreview] = useState([]);
-  const [actionLoading, setActionLoading] = useState(false); // Nuevo estado para loading de acción
+  const [actionLoading, setActionLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('informacion'); // Pestaña activa
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -46,6 +55,13 @@ const EditarPropiedad = () => {
       setPropiedad({
         titulo: data.titulo,
         descripcion: data.descripcion,
+        habitaciones: data.habitaciones || '',
+        banos: data.banos || '',
+        area: data.area || '',
+        cocina: data.cocina || false,
+        estrato: data.estrato || '',
+        garaje: data.garaje || false,
+        piscina: data.piscina || false,
         ubicacion: data.ubicacion,
         precio: data.precio,
         disponible: data.disponible !== false, // si es undefined, se considera true
@@ -91,8 +107,8 @@ const EditarPropiedad = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setActionLoading(true); // Indicar que una acción está en progreso
-    setMensaje(''); // Limpiar mensajes previos
+    setActionLoading(true);
+    setMensaje('');
     console.log('--- [EditarPropiedad] Iniciando handleSubmit ---');
 
     // 1. Obtener y validar usuario_id
@@ -107,105 +123,63 @@ const EditarPropiedad = () => {
 
     // 2. Validaciones de campos obligatorios y formato
     if (!propiedad.titulo || !propiedad.descripcion || !propiedad.ubicacion || !propiedad.precio) {
-        setMensaje('Error: Todos los campos (Título, Descripción, Ubicación, Precio) son obligatorios.');
-        console.error('[EditarPropiedad] Error de validación: Campos obligatorios faltantes.');
-        setActionLoading(false);
-        return;
+      setMensaje('Error: Todos los campos (Título, Descripción, Ubicación, Precio) son obligatorios.');
+      console.error('[EditarPropiedad] Error de validación: Campos obligatorios faltantes.');
+      setActionLoading(false);
+      return;
     }
-    const precioNum = parseFloat(propiedad.precio); // Convertir a número para validar
+    const precioNum = parseFloat(propiedad.precio);
     if (isNaN(precioNum) || precioNum <= 0) {
-        setMensaje('Error: El precio debe ser un número válido mayor que cero.');
-        console.error('[EditarPropiedad] Error de validación: Precio inválido.');
-        setActionLoading(false);
-        return;
+      setMensaje('Error: El precio debe ser un número válido mayor que cero.');
+      console.error('[EditarPropiedad] Error de validación: Precio inválido.');
+      setActionLoading(false);
+      return;
     }
     console.log('[EditarPropiedad] Validaciones básicas pasadas.');
 
-    // 3. Crear FormData
     try {
       const formData = new FormData();
-
-      // Añadir campos de texto (asegurándose de enviar strings como espera el backend con FormData)
       formData.append('titulo', propiedad.titulo);
       formData.append('descripcion', propiedad.descripcion);
       formData.append('ubicacion', propiedad.ubicacion);
-      formData.append('precio', precioNum.toString()); // Enviar precio validado como string
-      formData.append('disponible', propiedad.disponible.toString()); // Enviar booleano como 'true' o 'false'
-      formData.append('usuario_id', usuario_id); // Esencial para la verificación en el backend
+      formData.append('precio', precioNum.toString());
+      formData.append('disponible', propiedad.disponible.toString());
+      formData.append('usuario_id', usuario_id);
 
-      console.log('[EditarPropiedad] Datos de texto añadidos a FormData:', {
-        titulo: propiedad.titulo,
-        descripcion: propiedad.descripcion,
-        ubicacion: propiedad.ubicacion,
-        precio: precioNum.toString(),
-        disponible: propiedad.disponible.toString(),
-        usuario_id: usuario_id
-      });
-
-      // 4. Añadir NUEVAS imágenes (si las hay)
-      // El backend (ruta PUT) está configurado para SOLO actualizar imágenes si recibe archivos nuevos.
       if (nuevasImagenes.length > 0) {
-        console.log(`[EditarPropiedad] Añadiendo ${nuevasImagenes.length} nuevas imágenes a FormData...`);
-        nuevasImagenes.forEach((imgFile, index) => {
-          // El nombre de campo 'imagen' debe coincidir con el esperado por multer en el backend
+        nuevasImagenes.forEach((imgFile) => {
           formData.append('imagen', imgFile, imgFile.name);
-          console.log(` - Nueva Imagen ${index + 1}: ${imgFile.name}`);
         });
-      } else {
-        console.log('[EditarPropiedad] No se seleccionaron nuevas imágenes. Las imágenes existentes se conservarán.');
-        // No añadir nada al FormData si no hay imágenes nuevas.
       }
 
-      // 5. Realizar la solicitud PUT
-      console.log(`[EditarPropiedad] Enviando solicitud PUT a /api/casas/${id}`);
+      const response = await axios.put(`http://localhost:4000/api/casas/${id}`, formData);
 
-      // Opcional: Loggear FormData (puede no funcionar en todos los navegadores)
-      // for (let [key, value] of formData.entries()) { console.log(`FormData -> ${key}:`, value); }
-
-      const response = await axios.put(`http://localhost:4000/api/casas/${id}`, formData, {
-        // Axios detecta FormData y establece 'multipart/form-data' automáticamente.
-        // No es necesario ponerlo explícitamente a menos que haya problemas.
-        // headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      console.log('[EditarPropiedad] Respuesta del servidor (PUT):', response);
-
-      // 6. Manejar la respuesta
       if (response.status === 200 && response.data?.mensaje === "Propiedad actualizada con éxito") {
         setMensaje('Propiedad actualizada con éxito');
-        console.log('[EditarPropiedad] Actualización exitosa en backend y frontend.');
-        // Opcional: Recargar datos o limpiar estado si es necesario antes de navegar
+        setTipoMensaje('success');
         setTimeout(() => {
-          navigate('/mis-propiedades'); // Redirigir a la lista
+          navigate('/mis-propiedades');
         }, 2000);
       } else {
-        // Caso: El servidor respondió 200 OK pero con un mensaje inesperado
-        console.warn('[EditarPropiedad] Respuesta inesperada del servidor (PUT):', response.data);
         setMensaje(response.data?.mensaje || response.data?.error || 'Respuesta inesperada al actualizar.');
       }
-
     } catch (error) {
-      // 7. Manejar errores de la solicitud
-      console.error('[EditarPropiedad] Error completo durante handleSubmit (PUT):', error);
       if (error.response) {
-        // El servidor respondió con un código de estado de error (4xx, 5xx)
         const errorMsg = error.response.data?.error || error.response.data?.mensaje || `Error del servidor (${error.response.status})`;
         setMensaje(`Error al actualizar: ${errorMsg}`);
-        console.error('[EditarPropiedad] Detalles del error del servidor (PUT):', error.response.data);
       } else if (error.request) {
-        // La solicitud se hizo pero no se recibió respuesta
         setMensaje('Error de red: No se pudo conectar con el servidor.');
-        console.error('[EditarPropiedad] Error de red (PUT):', error.request);
       } else {
-        // Error al configurar la solicitud
         setMensaje(`Error en la solicitud (PUT): ${error.message}`);
-        console.error('[EditarPropiedad] Error en configuración de Axios (PUT):', error.message);
       }
     } finally {
-      // 8. Finalizar estado de carga
       setActionLoading(false);
-      console.log('--- [EditarPropiedad] Finalizando handleSubmit ---');
     }
+  };
+
+  // Función para cambiar de pestaña
+  const cambiarPestaña = (tabId) => {
+    setActiveTab(tabId);
   };
 
   if (loading) {
@@ -224,127 +198,297 @@ const EditarPropiedad = () => {
         <p>Actualiza la información de tu propiedad</p>
       </div>
       
-      {mensaje && <div className="mensaje-alerta">{mensaje}</div>}
+      {mensaje && (
+        <div className={`mensaje-alerta ${tipoMensaje === 'success' ? 'success' : ''}`}>
+          {tipoMensaje === 'success' && <i className="fas fa-check-circle"></i>}
+          {tipoMensaje !== 'success' && <i className="fas fa-exclamation-circle"></i>}
+          {mensaje}
+        </div>
+      )}
       
-      <form className="editar-propiedad-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="titulo">Título</label>
-          <input
-            type="text"
-            id="titulo"
-            name="titulo"
-            value={propiedad.titulo}
-            onChange={handleChange}
-            required
-          />
+      <div className="tabs-container">
+        {/* Navegación de pestañas */}
+        <div className="tabs-nav">
+          <button 
+            className={`tab-button ${activeTab === 'informacion' ? 'active' : ''}`}
+            onClick={() => cambiarPestaña('informacion')}
+          >
+            Información básica
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'ubicacion' ? 'active' : ''}`}
+            onClick={() => cambiarPestaña('ubicacion')}
+          >
+            Ubicación
+          </button>
+          {/* 
+          <button 
+            className={`tab-button ${activeTab === 'caracteristicas' ? 'active' : ''}`}
+            onClick={() => cambiarPestaña('caracteristicas')}
+          >
+            Características
+          </button>
+          */}
+          <button 
+            className={`tab-button ${activeTab === 'imagenes' ? 'active' : ''}`}
+            onClick={() => cambiarPestaña('imagenes')}
+          >
+            Imágenes
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'disponibilidad' ? 'active' : ''}`}
+            onClick={() => cambiarPestaña('disponibilidad')}
+          >
+            Disponibilidad
+          </button>
         </div>
         
-        <div className="form-group">
-          <label htmlFor="ubicacion">Ubicación</label>
-          <input
-            type="text"
-            id="ubicacion"
-            name="ubicacion"
-            value={propiedad.ubicacion}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="descripcion">Descripción</label>
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            value={propiedad.descripcion}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="precio">Precio</label>
-          <input
-            type="number"
-            id="precio"
-            name="precio"
-            value={propiedad.precio}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              name="disponible"
-              checked={propiedad.disponible}
-              onChange={handleChange}
-            />
-            Disponible para alquiler
-          </label>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="imagenes">Imágenes actuales</label>
-          <div className="imagenes-actuales">
-            {imagenes.length > 0 ? (
-              <div className="imagen-grid">
-                {imagenes.map((img, index) => (
-                  <div key={index} className="imagen-preview-container">
-                    <img
-                      src={`http://localhost:4000/${img}`}
-                      alt={`Propiedad ${index + 1}`}
-                      className="imagen-preview"
-                    />
-                  </div>
-                ))}
+        <form className="editar-propiedad-form" onSubmit={handleSubmit}>
+          {/* Contenido de pestaña: Información básica */}
+          <div className={`tab-content ${activeTab === 'informacion' ? 'active' : ''}`} id="informacion">
+            <h3 className="form-section-title">Información básica</h3>
+            
+            <div className="form-group">
+              <label htmlFor="titulo">Título</label>
+              <input
+                type="text"
+                id="titulo"
+                name="titulo"
+                value={propiedad.titulo}
+                onChange={handleChange}
+                required
+                placeholder="Escribe un título atractivo"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="descripcion">Descripción</label>
+              <textarea
+                id="descripcion"
+                name="descripcion"
+                value={propiedad.descripcion}
+                onChange={handleChange}
+                required
+                placeholder="Describe los detalles de tu propiedad"
+              />
+            </div>
+            
+            {/* <h4 className="form-subsection-title">Características principales</h4>
+            
+            <div className="form-row">
+              <div className="form-group half-width">
+                <label htmlFor="habitaciones">Habitaciones</label>
+                <input
+                  type="number"
+                  id="habitaciones"
+                  name="habitaciones"
+                  value={propiedad.habitaciones}
+                  onChange={handleChange}
+                  min="0"
+                  placeholder="Número de habitaciones"
+                />
               </div>
-            ) : (
-              <p>No hay imágenes disponibles</p>
-            )}
-          </div>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="nuevas-imagenes">Actualizar imágenes (opcional)</label>
-          <input
-            type="file"
-            id="nuevas-imagenes"
-            name="nuevas-imagenes"
-            onChange={handleImageChange}
-            multiple
-            accept="image/*"
-          />
-          
-          {preview.length > 0 && (
-            <div className="nuevas-imagenes-preview">
-              <h4>Vista previa</h4>
-              <div className="imagen-grid">
-                {preview.map((url, index) => (
-                  <div key={index} className="imagen-preview-container">
-                    <img
-                      src={url}
-                      alt={`Nueva imagen ${index + 1}`}
-                      className="imagen-preview"
-                    />
-                  </div>
-                ))}
+              
+              <div className="form-group half-width">
+                <label htmlFor="banos">Baños</label>
+                <input
+                  type="number"
+                  id="banos"
+                  name="banos"
+                  value={propiedad.banos}
+                  onChange={handleChange}
+                  min="0"
+                  placeholder="Número de baños"
+                />
               </div>
             </div>
-          )}
-        </div>
-        
-        <div className="form-actions">
-          <button type="button" className="btn-cancelar" onClick={() => navigate('/mis-propiedades')}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn-guardar" disabled={loading || actionLoading}>
-            {actionLoading ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-        </div>
-      </form>
+            
+            <div className="form-row">
+              <div className="form-group half-width">
+                <label htmlFor="area">Área (m²)</label>
+                <input
+                  type="number"
+                  id="area"
+                  name="area"
+                  value={propiedad.area}
+                  onChange={handleChange}
+                  min="0"
+                  placeholder="Área en metros cuadrados"
+                />
+              </div>
+              
+              <div className="form-group half-width">
+                <label htmlFor="estrato">Estrato</label>
+                <select
+                  id="estrato"
+                  name="estrato"
+                  value={propiedad.estrato}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccionar estrato</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="form-row checkboxes-container">
+              <div className="form-group checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="cocina"
+                    checked={propiedad.cocina}
+                    onChange={handleChange}
+                  />
+                  Cocina integrada
+                </label>
+              </div>
+              
+              <div className="form-group checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="garaje"
+                    checked={propiedad.garaje}
+                    onChange={handleChange}
+                  />
+                  Garaje/Parqueadero
+                </label>
+              </div>
+              
+              <div className="form-group checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="piscina"
+                    checked={propiedad.piscina}
+                    onChange={handleChange}
+                  />
+                  Piscina
+                </label>
+              </div>
+            </div> */}
+          </div>
+          
+          {/* Contenido de pestaña: Ubicación */}
+          <div className={`tab-content ${activeTab === 'ubicacion' ? 'active' : ''}`} id="ubicacion">
+            <h3 className="form-section-title">Ubicación</h3>
+            
+            <div className="form-group">
+              <label htmlFor="ubicacion">Dirección completa</label>
+              <input
+                type="text"
+                id="ubicacion"
+                name="ubicacion"
+                value={propiedad.ubicacion}
+                onChange={handleChange}
+                required
+                placeholder="Ingresa la dirección exacta"
+              />
+            </div>
+          </div>
+          
+          {/* Contenido de pestaña: Imágenes */}
+          <div className={`tab-content ${activeTab === 'imagenes' ? 'active' : ''}`} id="imagenes">
+            <h3 className="form-section-title">Imágenes de la propiedad</h3>
+            
+            <div className="form-group">
+              <label>Imágenes actuales</label>
+              <div className="imagenes-actuales">
+                {imagenes.length > 0 ? (
+                  <div className="imagen-grid">
+                    {imagenes.map((img, index) => (
+                      <div key={index} className="imagen-preview-container">
+                        <img
+                          src={`http://localhost:4000/${img}`}
+                          alt={`Propiedad ${index + 1}`}
+                          className="imagen-preview"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No hay imágenes disponibles</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="nuevas-imagenes">Actualizar imágenes (opcional)</label>
+              <input
+                type="file"
+                id="nuevas-imagenes"
+                name="nuevas-imagenes"
+                onChange={handleImageChange}
+                multiple
+                accept="image/*"
+              />
+              
+              {preview.length > 0 && (
+                <div className="nuevas-imagenes-preview">
+                  <h4>Vista previa</h4>
+                  <div className="imagen-grid">
+                    {preview.map((url, index) => (
+                      <div key={index} className="imagen-preview-container">
+                        <img
+                          src={url}
+                          alt={`Nueva imagen ${index + 1}`}
+                          className="imagen-preview"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Contenido de pestaña: Disponibilidad */}
+          <div className={`tab-content ${activeTab === 'disponibilidad' ? 'active' : ''}`} id="disponibilidad">
+            <h3 className="form-section-title">Precio y disponibilidad</h3>
+            
+            <div className="form-group">
+              <label htmlFor="precio">Precio</label>
+              <input
+                type="number"
+                id="precio"
+                name="precio"
+                value={propiedad.precio}
+                onChange={handleChange}
+                required
+                placeholder="Precio por noche/mes"
+              />
+            </div>
+            
+            <div className="form-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  name="disponible"
+                  checked={propiedad.disponible}
+                  onChange={handleChange}
+                />
+                Disponible para alquiler
+              </label>
+            </div>
+          </div>
+          
+          {/* Botones de acción (siempre visibles) */}
+          <div className="form-actions">
+            <button type="button" className="btn-cancelar" onClick={() => navigate('/mis-propiedades')}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn-guardar" disabled={loading || actionLoading}>
+              {actionLoading ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
