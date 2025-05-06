@@ -171,7 +171,7 @@ const PublicarPropiedad = () => {
         </div>
         
         <div className="form-group">
-          <label htmlFor="precio">Precio (por mes)</label>
+          <label htmlFor="precio">Precio</label>
           <input
             type="number"
             id="precio"
