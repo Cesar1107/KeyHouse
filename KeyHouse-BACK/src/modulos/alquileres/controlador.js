@@ -10,7 +10,9 @@ async function obtenerSolicitudesDelDueno(req, res) {
         a.id AS alquiler_id,
         a.estado,
         u.nombre AS nombre_inquilino,
-        c.ubicacion
+        c.ubicacion,
+        c.titulo,
+        c.imagen
       FROM alquileres a
       JOIN casas c ON a.casa_id = c.id
       JOIN usuarios u ON a.usuario_id = u.id_usuario
@@ -66,6 +68,7 @@ async function responderSolicitud(req, res) {
           u1.cedula AS cedula_inquilino,
           u2.cedula AS cedula_dueno,
           c.precio AS precio
+          c.titulo
         FROM alquileres a
         JOIN casas c ON a.casa_id = c.id
         JOIN usuarios u1 ON a.usuario_id = u1.id_usuario
@@ -93,6 +96,10 @@ async function responderSolicitud(req, res) {
         datos.casa_id,
         nombrePDF
       ]);
+
+      await db.query(`
+        UPDATE casas SET disponible = false WHERE id = $1
+      `, [datos.casa_id]);
     }
 
     res.send('Solicitud procesada correctamente');

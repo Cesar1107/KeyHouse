@@ -29,11 +29,12 @@ function App() {
           <Route path="/sobre" element={<SobreNosotros />} />
           <Route path="/casa/:id" element={<DetalleCasa />} />
           <Route path="home" element={<Home />} />
+          <Route path="/solicitudes" element={<Solicitudes idDueno={usuario} />} />
+
         </Route>
         <Route path="/mis-propiedades" element={<MisPropiedades />} />
         <Route path="/editar-propiedad/:id" element={<EditarPropiedad />} />
         <Route path="/publicar-propiedad" element={<PublicarPropiedad />} />
-        <Route path="/solicitudes" element={<Solicitudes idDueno={usuario} />} />
         </Routes>     
     </Router>
   );

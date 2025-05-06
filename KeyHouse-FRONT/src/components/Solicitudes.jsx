@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/Solicitudes.css';
 
 const Solicitudes = ({ idDueno }) => {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -29,19 +30,50 @@ const Solicitudes = ({ idDueno }) => {
   };
 
   return (
-    <div>
+    <div className="solicitudes-container">
       <h2>Solicitudes de arriendo recibidas</h2>
       {solicitudes.length === 0 ? (
-        <p>No tienes solicitudes pendientes.</p>
+        <div className="empty-state">
+          No tienes solicitudes pendientes.
+          <span>Las solicitudes aparecerán aquí cuando los inquilinos muestren interés.</span>
+        </div>
       ) : (
-        solicitudes.map(s => (
-          <div key={s.alquiler_id} className="card">
-            <p><strong>Casa:</strong> {s.direccion}</p>
-            <p><strong>Inquilino:</strong> {s.nombre_inquilino}</p>
-            <button onClick={() => responderSolicitud(s.alquiler_id, 'aceptado')}>Aceptar</button>
-            <button onClick={() => responderSolicitud(s.alquiler_id, 'rechazado')}>Rechazar</button>
-          </div>
-        ))
+        <div className="cards-grid">
+          {solicitudes.map(s => (
+            <div key={s.alquiler_id} className="card">
+              <div className="casa-card-inner">
+                <div className="casa-image-container">
+                  {JSON.parse(s.imagen).length > 0 && (
+                    <img
+                      src={`http://localhost:4000/${JSON.parse(s.imagen)[0]}`}
+                      className="casa-image"
+                      alt={`Imagen de ${s.titulo}`}
+                    />
+                  )}
+                </div>
+              </div>
+              <div className="card-content">
+                <p><strong>Casa:</strong> {s.titulo}</p>
+                <p><strong>Dirección:</strong> {s.ubicacion}</p>
+                <p><strong>Inquilino:</strong> {s.nombre_inquilino}</p>
+                <div className="buttons-container">
+                  <button 
+                    className="accept" 
+                    onClick={() => responderSolicitud(s.alquiler_id, 'aceptado')}
+                  >
+                    Aceptar
+                  </button>
+                  <button 
+                    className="reject" 
+                    onClick={() => responderSolicitud(s.alquiler_id, 'rechazado')}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
