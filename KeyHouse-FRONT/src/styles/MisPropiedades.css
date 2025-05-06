@@ -1,0 +1,277 @@
+.mis-propiedades-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Estilos para los mensajes */
+.mensaje-alerta {
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.mensaje-alerta.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.mensaje-alerta.exito {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mis-propiedades-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #ff5a5f;
+}
+
+.header-info h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #484848;
+}
+
+.propiedades-subtitle {
+  margin: 0.5rem 0 0;
+  color: #767676;
+}
+
+.header-actions {
+  display: flex;
+}
+
+.publish-button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.publish-button:hover {
+  background-color: #0074e9;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff5a5f;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-properties-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.no-properties-icon {
+  font-size: 3rem;
+  color: #ff5a5f;
+  margin-bottom: 1rem;
+}
+
+.propiedades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.property-card {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.property-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.status.available {
+  background-color: #28a745;
+  color: white;
+}
+
+.status.unavailable {
+  background-color: #dc3545;
+  color: white;
+}
+
+.property-image-container {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.property-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.property-no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f8f8;
+  color: #999;
+}
+
+.property-info {
+  padding: 1.5rem;
+}
+
+.property-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  color: #484848;
+}
+
+.property-location {
+  margin: 0 0 0.5rem;
+  color: #767676;
+  font-size: 1rem;
+}
+
+.property-description {
+  margin: 0 0 1rem;
+  color: #484848;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.property-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 1rem;
+  color: #484848;
+}
+
+.property-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-property-btn,
+.delete-property-btn,
+.view-property-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.edit-property-btn {
+  background-color: #ffc107;
+  color: white;
+}
+
+.delete-property-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.view-property-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.back-link {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.back-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .mis-propiedades-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    margin-top: 1rem;
+  }
+  
+  .propiedades-grid {
+    grid-template-columns: 1fr;
+  }
+}

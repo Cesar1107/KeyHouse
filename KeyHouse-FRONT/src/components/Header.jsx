@@ -8,6 +8,8 @@ const Header = () => {
   const [search, setSearch] = useState("");
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,6 +45,10 @@ const Header = () => {
         localStorage.removeItem('userAvatar'); // Limpiar datos inválidos
       }
     }
+
+    // Verificar estado de inicio de sesión
+    const loggedIn = localStorage.getItem('isLoggedIn');
+    setIsLoggedIn(!!loggedIn);
   }, []);
 
   // Manejar cambios en la búsqueda
@@ -90,6 +96,7 @@ const Header = () => {
     setUserAvatar('');
     setUserName('');
     setSearch('');
+    setIsLoggedIn(false);
     
     navigate('/');
   }, [navigate]);
@@ -101,6 +108,10 @@ const Header = () => {
       console.log("Componente Header desmontado, limpiando recursos");
     };
   }, []);
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
   return (
     <header className="navbar">
@@ -138,12 +149,22 @@ const Header = () => {
 
       {/* Items de navegación */}
       <nav className="navbar-items">
-        <Link to="/favoritos" className="nav-item">
-          Favoritos
-        </Link>
-        <Link to="/RegistrarCasa" className="nav-item">
-          Publicar vivienda 
-        </Link>
+        {isLoggedIn && (
+          <>
+            <Link to="/home" className="nav-item">
+              Inicio
+            </Link>
+            <Link to="/favoritos" className="nav-item">
+              <span className="nav-icon"></span> Favoritos
+            </Link>
+            <Link to="/mis-propiedades" className="nav-item">
+              <span className="nav-icon"></span> Mis Propiedades
+            </Link>
+            <Link to="/solicitudes" className="nav-item">
+              <span className="nav-icon"></span> Solicitudes
+            </Link> 
+          </>
+        )}
         <Link to="/perfil" className="nav-item user-profile">
           {userAvatar && userAvatar.startsWith('data:image/') ? (
             <div className="user-avatar">

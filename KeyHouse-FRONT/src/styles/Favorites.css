@@ -2,8 +2,9 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: #222;
+  font-family: 'Circular', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #111; /* Tono más oscuro */
+  line-height: 1.6; /* Mejora la legibilidad */
 }
 
 .favorites-header {
@@ -225,22 +226,25 @@
   margin-bottom: 1rem;
 }
 
+/* Botón de ver detalles */
 .view-property-button {
   display: inline-block;
-  padding: 0.6rem 1rem;
-  background-color: transparent;
-  color: #0066cc;
-  border: 1px solid #0066cc;
-  border-radius: 8px;
+  padding: 1rem 2rem; /* Tamaño más grande */
+  background-color: #0066cc; /* Azul del header/footer */
+  color: white;
+  border: 2px solid #0066cc; /* Borde más grueso */
+  border-radius: 10px; /* Bordes más redondeados */
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 700; /* Texto más destacado */
+  font-size: 1.2rem; /* Texto más grande */
   transition: all 0.3s ease;
   text-align: center;
+  margin-top: 1.5rem; /* Más separación del contenido circundante */
 }
 
 .view-property-button:hover {
-  background-color: #0066cc;
+  background-color: #0052a3; /* Azul más oscuro al pasar el cursor */
+  border-color: #0052a3;
   color: white;
 }
 
@@ -290,4 +294,4 @@
   .favorites-grid {
     grid-template-columns: 1fr;
   }
-} 
+}

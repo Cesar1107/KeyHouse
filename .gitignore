@@ -214,4 +214,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Archivo config.js
+config.js
+.config.js
+
 # End of https://www.toptal.com/developers/gitignore/api/linux,windows,visualstudiocode,node,react
