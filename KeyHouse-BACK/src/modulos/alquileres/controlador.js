@@ -67,7 +67,7 @@ async function responderSolicitud(req, res) {
           c.ubicacion AS direccion,
           u1.cedula AS cedula_inquilino,
           u2.cedula AS cedula_dueno,
-          c.precio AS precio
+          c.precio AS precio,
           c.titulo
         FROM alquileres a
         JOIN casas c ON a.casa_id = c.id
