@@ -9,6 +9,7 @@ const {
   eliminarCasa,
   actualizarCasa 
 } = require("./controlador");
+const { getCoordinatesFromAddress } = require('../../utils/geocoding');
 
 const router = express.Router();
 
@@ -23,6 +24,18 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+router.post('/geocoding', async (req, res) => {
+  const { direccion } = req.body;
+
+  try {
+    const coords = await getCoordinatesFromAddress(direccion);
+    res.json(coords);
+  } catch (error) {
+    console.error('Error en geocoding:', error.message);
+    res.status(500).json({ error: 'Error al obtener coordenadas' });
+  }
+});
 
 // Middleware para servir archivos estáticos desde la carpeta "uploads"
 router.use("/uploads", express.static(path.join(__dirname, "../../../uploads")));
@@ -99,34 +112,36 @@ router.get("/:id", async (req, res) => {
 // Ruta para registrar una casa
 router.post("/registrar", upload.array("imagen", 5), async (req, res) => {
   try {
-      console.log("Datos recibidos en req.body:", req.body);
-      console.log("Archivos recibidos en req.files:", req.files);
+    console.log("Datos recibidos en req.body:", req.body);
+    console.log("Archivos recibidos en req.files:", req.files);
 
-      const { titulo, descripcion, ubicacion, precio, usuario_id } = req.body;
-      
-      if (!titulo || !descripcion || !ubicacion || !precio || !usuario_id) {
-          return res.status(400).json({ error: "Todos los campos son obligatorios" });
-      }
+    const { titulo, descripcion, ubicacion, precio, usuario_id, latitud, longitud } = req.body;
 
-      const imagenes = req.files.map(file => file.path.replace(/\\/g, "/")); // Corrige las barras
-      const imagenesJSON = JSON.stringify(imagenes); // Guarda el array correctamente
+    if (!titulo || !descripcion || !ubicacion || !precio || !usuario_id || !latitud || !longitud) {
+      return res.status(400).json({ error: "Todos los campos son obligatorios, incluyendo latitud y longitud" });
+    }
 
-      const query = `
-      INSERT INTO casas (titulo, descripcion, ubicacion, precio, imagen, usuario_id) 
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
-      `;
-      const values = [titulo, descripcion, ubicacion, precio, imagenesJSON, usuario_id];
+    const imagenes = req.files.map(file => file.path.replace(/\\/g, "/"));
+    const imagenesJSON = JSON.stringify(imagenes);
 
-      const result = await db.query(query, values);
+    const query = `
+      INSERT INTO casas (titulo, descripcion, ubicacion, precio, imagen, usuario_id, latitud, longitud) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+    `;
+    const values = [titulo, descripcion, ubicacion, precio, imagenesJSON, usuario_id, latitud, longitud];
 
-      console.log("Casa guardada en la base de datos:", result.rows[0]);
+    const result = await db.query(query, values);
 
-      res.json({ message: "Casa registrada exitosamente", casa: result.rows[0] });
+    console.log("Casa guardada en la base de datos:", result.rows[0]);
+
+    res.json({ message: "Casa registrada exitosamente", casa: result.rows[0] });
+
   } catch (error) {
-      console.error("Error al registrar casa:", error);
-      res.status(500).json({ error: "Error interno del servidor" });
+    console.error("Error al registrar casa:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
+
 
 
 // Ruta para actualizar una casa

@@ -16,27 +16,29 @@ const upload = multer({ storage });
 
 const registrarCasa = async (req, res) => {
   try {
-    const { titulo, descripcion, precio, ubicacion, usuario_id } = req.body;
-    const imagen = req.file ? req.file.filename : null;
+    const { titulo, descripcion, precio, ubicacion, usuario_id, latitud, longitud } = req.body;
+    const imagenes = req.files.map(file => file.path.replace(/\\/g, "/"));
+    const imagenesJSON = JSON.stringify(imagenes);
 
-    if (!titulo || !descripcion || !precio || !ubicacion || !usuario_id || !imagen) {
-      return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    if (!titulo || !descripcion || !precio || !ubicacion || !usuario_id || !latitud || !longitud || imagenes.length === 0) {
+      return res.status(400).json({ error: "Todos los campos son obligatorios, incluyendo imágenes, latitud y longitud" });
     }
 
     const query = `
-      INSERT INTO casas (titulo, descripcion, precio, ubicacion, imagen, usuario_id)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+      INSERT INTO casas (titulo, descripcion, precio, ubicacion, imagen, usuario_id, latitud, longitud)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
     `;
-    const values = [titulo, descripcion, precio, ubicacion, imagen, usuario_id];
+    const values = [titulo, descripcion, precio, ubicacion, imagenesJSON, usuario_id, latitud, longitud];
 
     const { rows } = await pool.query(query, values);
     res.json({ mensaje: "Casa registrada con éxito", casa: rows[0] });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error al registrar casa:", error);
     res.status(500).json({ error: "Error al registrar la casa" });
   }
 };
+
 
 // Nueva función para obtener casas por usuario -->> Ver si necesarios 
 const obtenerCasasPorUsuario = async (req, res) => {

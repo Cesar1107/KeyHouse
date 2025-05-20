@@ -1,42 +1,37 @@
-const config = require('../config');
 const { Client } = require('pg');
+const config = require('../config');
 
-const pgconfig = {
+const client = new Client({
     user: config.pg.user,
     host: config.pg.host,
     database: config.pg.database,
     password: config.pg.password,
     port: config.pg.port,
-};
+});
 
-let conexion;
+client.connect()
+  .then(() => console.log('✅ Conectado a PostgreSQL'))
+  .catch((err) => {
+    console.error('Error conectando a PostgreSQL:', err);
+    // Opcional: reconectar o salir del proceso
+  });
 
-// Función para conectar a la base de datos
-function conpg() {
-    conexion = new Client(pgconfig);
+client.on('error', (err) => {
+  console.error('Error inesperado en conexión PostgreSQL', err);
+  // Aquí podrías intentar reconectar si quieres
+});
 
-    conexion.connect(err => {
-        if (err) {
-            console.error('[db error]', err);
-            setTimeout(conpg, 5000); // Reintentar conexión después de 5 segundos
-        } else {
-            console.log('✅ Conectado a PostgreSQL');
-        }
-    });
-
-    conexion.on('error', err => {
-        console.error('[db error]', err);
-        conpg(); // Intentar reconectar
-    });
-}
-
-// Iniciar la conexión
-conpg();
-
-function query(text, params) {
-    return conexion.query(text, params);
+async function query(text, params) {
+  try {
+    const res = await client.query(text, params);
+    return res;
+  } catch (error) {
+    console.error('Error en query PostgreSQL:', error);
+    throw error;
+  }
 }
 
 module.exports = {
-    query
+  query,
+  client, // exportar el cliente en caso de que quieras usar transacciones o consultas directas
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../styles/Header.css";
-import logo from "../images/keyhouse_remove_background.png"; // Ruta relativa corregida
+import logo from "../images/keyhouse_remove_background.png";
 import lupaIcon from "../images/loupe.png";
 
 const Header = () => {
@@ -10,10 +10,10 @@ const Header = () => {
   const [userAvatar, setUserAvatar] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [miHogarCasaId, setMiHogarCasaId] = useState(null); // Aquí guardaremos el id de la casa
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Cargar búsqueda guardada en localStorage al iniciar
   useEffect(() => {
     const savedSearch = localStorage.getItem('searchTerm');
     if (savedSearch) {
@@ -21,93 +21,84 @@ const Header = () => {
     }
   }, []);
 
-  // Cargar datos del usuario
   useEffect(() => {
-    // Cargar datos del usuario desde localStorage
     const userData = localStorage.getItem('userData');
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
         setUserName(parsedData.nombre);
+        setIsLoggedIn(true);
+        fetchAlquilerAceptado(parsedData.id_usuario); // Aquí pasamos el id usuario
       } catch (error) {
         console.error("Error al procesar datos del usuario:", error);
       }
-    }
-    
-    // Cargar avatar del usuario si existe
-    const storedAvatar = localStorage.getItem('userAvatar');
-    if (storedAvatar) {
-      // Validar que el avatar sea una URL de datos válida
-      if (storedAvatar.startsWith('data:image/')) {
-        setUserAvatar(storedAvatar);
-      } else {
-        console.warn("Formato de avatar no válido, omitiendo carga de imagen");
-        localStorage.removeItem('userAvatar'); // Limpiar datos inválidos
-      }
+    } else {
+      setIsLoggedIn(false);
     }
 
-    // Verificar estado de inicio de sesión
-    const loggedIn = localStorage.getItem('isLoggedIn');
-    setIsLoggedIn(!!loggedIn);
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar && storedAvatar.startsWith('data:image/')) {
+      setUserAvatar(storedAvatar);
+    }
   }, []);
 
-  // Manejar cambios en la búsqueda
+  // Ahora sí actualizamos el estado miHogarCasaId si hay alquiler aceptado
+  const fetchAlquilerAceptado = async (usuario_id) => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/alquileres/aceptado/${usuario_id}`);
+      if (!response.ok) {
+        console.error('Error en la respuesta:', response.status);
+        return;
+      }
+      const data = await response.json();
+      if (data.aceptado) {
+        // Guardamos el id de la casa para luego usar en el botón "Mi Hogar"
+        setMiHogarCasaId(data.alquiler.casa_id);
+      } else {
+        setMiHogarCasaId(null);
+      }
+    } catch (error) {
+      console.error('Error al verificar alquiler aceptado:', error);
+      setMiHogarCasaId(null);
+    }
+  };
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
     localStorage.setItem('searchTerm', value);
-    
-    // Si estamos en la página principal, no necesitamos navegar
     if (location.pathname !== '/home') {
       navigate('/home');
     }
   };
 
-  // Manejar búsqueda al presionar Enter
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       localStorage.setItem('searchTerm', search);
-      
-      // Asegurarse de que estamos en la página principal para ver los resultados
       if (location.pathname !== '/home') {
         navigate('/home');
       }
     }
   };
 
-  // Borrar la búsqueda
   const clearSearch = () => {
     setSearch('');
     localStorage.removeItem('searchTerm');
   };
 
-  // Mejorar manejo de logout con useCallback para evitar recreaciones innecesarias
   const handleLogout = useCallback(() => {
-    // Ya no es necesario limpiar blobs ya que ahora usamos data URLs
-    
-    // Limpiar los datos de sesión al cerrar sesión
     localStorage.removeItem('userData');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('searchTerm');
-    
-    // Limpiar estados locales
     setUserAvatar('');
     setUserName('');
     setSearch('');
     setIsLoggedIn(false);
-    
+    setMiHogarCasaId(null);
     navigate('/');
   }, [navigate]);
-
-  // Efecto para limpiar memoria al desmontar el componente
-  useEffect(() => {
-    return () => {
-      // Limpieza al desmontar
-      console.log("Componente Header desmontado, limpiando recursos");
-    };
-  }, []);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -115,13 +106,11 @@ const Header = () => {
 
   return (
     <header className="navbar">
-      {/* Logo */}
       <div className="logo-container">
         <img src={logo} alt="KeyHouse Logo" className="navbar-logo" />
         <span className="logo-text">Keyhouse</span>
       </div>
 
-      {/* Barra de búsqueda estilo Airbnb */}
       <div className="search-container">
         <input
           type="text"
@@ -138,31 +127,26 @@ const Header = () => {
         )}
         <button className="search-button" onClick={() => navigate('/home')}>
           <img 
-              src={lupaIcon}
-              alt="Icono de búsqueda" 
-              className="search-icon"  // Clase para estilos (opcional)
-              width="22"  // Tamaño deseado
-              height="22"
-            />
+            src={lupaIcon}
+            alt="Icono de búsqueda" 
+            className="search-icon"
+            width="22"
+            height="22"
+          />
         </button>
       </div>
 
-      {/* Items de navegación */}
       <nav className="navbar-items">
         {isLoggedIn && (
           <>
-            <Link to="/home" className="nav-item">
-              Inicio
-            </Link>
-            <Link to="/favoritos" className="nav-item">
-              <span className="nav-icon"></span> Favoritos
-            </Link>
-            <Link to="/mis-propiedades" className="nav-item">
-              <span className="nav-icon"></span> Mis Propiedades
-            </Link>
-            <Link to="/solicitudes" className="nav-item">
-              <span className="nav-icon"></span> Solicitudes
-            </Link> 
+            <Link to="/home" className="nav-item">Inicio</Link>
+            {miHogarCasaId && (
+              <Link to={`/casa/${miHogarCasaId}`} className="nav-item">Mi Hogar</Link>
+            )}
+            <Link to="/favoritos" className="nav-item">Favoritos</Link>
+            <Link to="/mis-propiedades" className="nav-item">Mis Propiedades</Link>
+            <Link to="/solicitudes" className="nav-item">Solicitudes</Link>
+            
           </>
         )}
         <Link to="/perfil" className="nav-item user-profile">
@@ -175,7 +159,7 @@ const Header = () => {
               <span>{userName ? userName.charAt(0).toUpperCase() : "P"}</span>
             </div>
           )}
-          <span className="user-name">{userName ? userName : "Perfil"}</span>
+          <span className="user-name">{userName || "Perfil"}</span>
         </Link>
         <button onClick={handleLogout} className="nav-item logout-btn">
           Cerrar Sesión

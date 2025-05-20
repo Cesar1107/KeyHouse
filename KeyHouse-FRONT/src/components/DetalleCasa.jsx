@@ -1,3 +1,5 @@
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -9,8 +11,19 @@ const DetalleCasa = () => {
   const [mensaje, setMensaje] = useState('');
   const [esFavorito, setEsFavorito] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [alquiler, setAlquiler] = useState(null);
 
   const usuario_id = localStorage.getItem('usuario_id');
+
+  const fetchAlquiler = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/alquileres/estado/${id}`);
+      setAlquiler(response.data); // Suponemos que retorna null o un objeto con usuario_id y estado
+    } catch (error) {
+      console.error('Error al consultar el estado del alquiler:', error);
+    }
+  };
+
 
   const verificarFavorito = async () => {
     if (!usuario_id) return;
@@ -46,9 +59,11 @@ const DetalleCasa = () => {
       setLoading(true);
       await fetchCasa();
       await verificarFavorito();
+      await fetchAlquiler();
     };
     init();
   }, [id]);
+
 
   const handleAgregarFavorito = async () => {
     if (!usuario_id) return setMensaje('Debes iniciar sesión para agregar a favoritos.');
@@ -101,6 +116,11 @@ const DetalleCasa = () => {
 
   const imagenes = typeof casa.imagen === 'string' ? JSON.parse(casa.imagen) : casa.imagen;
 
+  const esDuenio = usuario_id && casa?.usuario_id?.toString() === usuario_id;
+  const esInquilinoAceptado = alquiler && alquiler.usuario_id?.toString() === usuario_id && alquiler.estado === 'aceptado';
+  const duenioPuedeReportar = esDuenio && alquiler && alquiler.estado === 'aceptado';
+
+
   return (
     <div className="detalle-container">
       <div className="detalle-content">
@@ -109,32 +129,20 @@ const DetalleCasa = () => {
         <div className="detalle-imagenes-container">
           {/* Contenedor de galería de imágenes con márgenes uniformes */}
           <div className="detalle-galeria">
-            {imagenes?.length > 0 && (
-              <>
-                <div className="detalle-imagen-principal">
-                  <img
-                    src={`http://localhost:4000/${imagenes[0]}`}
-                    alt={`Imagen principal de ${casa.titulo}`}
-                    className="detalle-imagen"
-                  />
-                </div>
-
-                {imagenes.length > 1 && (
-                  <div className="detalle-imagenes-grid">
-                    {imagenes.slice(1).map((img, index) => (
-                      <div key={index} className="detalle-imagen-item">
-                        <img
-                          src={`http://localhost:4000/${img}`}
-                          alt={`Vista ${index + 2} de ${casa.titulo}`}
-                          className="detalle-imagen-secundaria"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+  {imagenes?.length > 0 && (
+    <Carousel showThumbs={false} infiniteLoop useKeyboardArrows dynamicHeight>
+      {imagenes.map((img, index) => (
+        <div key={index}>
+          <img
+            src={`http://localhost:4000/${img}`}
+            alt={`Imagen ${index + 1} de ${casa.titulo}`}
+            className="detalle-imagen"
+          />
+        </div>
+      ))}
+    </Carousel>
+  )}
+</div>
         </div>
 
         <div className="detalle-info-container">
@@ -216,19 +224,35 @@ const DetalleCasa = () => {
           </div>
 
           <div className="detalle-acciones">
-            <button onClick={handleAlquilar} className="btn btn-alquilar">
-              <i className="fas fa-key"></i> Alquilar
-            </button>
-
-            {esFavorito ? (
-              <button onClick={handleEliminarFavorito} className="btn btn-eliminar">
-                <i className="fas fa-heart-broken"></i> Eliminar de Favoritos
-              </button>
-            ) : (
-              <button onClick={handleAgregarFavorito} className="btn btn-agregar">
-                <i className="fas fa-heart"></i> Agregar a Favoritos
+            {casa.disponible && parseInt(usuario_id) !== parseInt(casa.usuario_id) && (
+              <button onClick={handleAlquilar} className="btn btn-alquilar">
+                <i className="fas fa-key"></i> Alquilar
               </button>
             )}
+            {duenioPuedeReportar && (
+              <button className="btn btn-reportar">
+                <i className="fas fa-flag"></i> Reportar al inquilino
+              </button>
+            )}
+
+            {esInquilinoAceptado && (
+              <button className="btn btn-reportar">
+                <i className="fas fa-flag"></i> Reportar al dueño
+              </button>
+            )}
+
+            {parseInt(usuario_id) !== parseInt(casa.usuario_id) && (
+              esFavorito ? (
+                <button onClick={handleEliminarFavorito} className="btn btn-eliminar">
+                  <i className="fas fa-heart-broken"></i> Eliminar de Favoritos
+                </button>
+              ) : (
+                <button onClick={handleAgregarFavorito} className="btn btn-agregar">
+                  <i className="fas fa-heart"></i> Agregar a Favoritos
+                </button>
+              )
+            )}
+
           </div>
 
           {mensaje && <p className="detalle-mensaje">{mensaje}</p>}

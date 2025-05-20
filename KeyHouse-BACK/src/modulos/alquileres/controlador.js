@@ -1,11 +1,11 @@
-const db = require('../../DB/db'); // Asegúrate de que la ruta sea correcta
 const generarContratoPDF = require('../../utils/generarContrato');
+const { query } = require('../../DB/db'); // Usamos la función query ya configurada
 
 async function obtenerSolicitudesDelDueno(req, res) {
   const { idDueno } = req.params;
 
   try {
-    const resultado = await db.query(`
+    const resultado = await query(`
       SELECT 
         a.id AS alquiler_id,
         a.estado,
@@ -19,7 +19,6 @@ async function obtenerSolicitudesDelDueno(req, res) {
       WHERE c.usuario_id = $1 AND a.estado = 'pendiente'
     `, [idDueno]);
 
-
     res.json(resultado.rows);
   } catch (error) {
     console.error('Error al obtener solicitudes:', error);
@@ -31,12 +30,7 @@ async function registrarAlquiler(req, res) {
   const { usuario_id, casa_id } = req.body;
 
   try {
-    if (!db || typeof db.query !== 'function') {
-      console.error('El cliente de la base de datos no está correctamente inicializado');
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-
-    await db.query(
+    await query(
       'INSERT INTO alquileres (usuario_id, casa_id, fecha_alquiler, estado) VALUES ($1, $2, NOW(), $3)',
       [usuario_id, casa_id, 'pendiente']
     );
@@ -51,12 +45,12 @@ async function registrarAlquiler(req, res) {
 async function responderSolicitud(req, res) {
   const { alquiler_id, decision } = req.body;
   const fechaInicio = new Date().toISOString().split('T')[0]; // formato YYYY-MM-DD
-  
+
   try {
-    await db.query('UPDATE alquileres SET estado = $1 WHERE id = $2', [decision, alquiler_id]);
+    await query('UPDATE alquileres SET estado = $1 WHERE id = $2', [decision, alquiler_id]);
 
     if (decision === 'aceptado') {
-      const result = await db.query(`
+      const result = await query(`
         SELECT 
           a.id AS alquiler_id,
           a.usuario_id AS inquilino_id,
@@ -82,11 +76,9 @@ async function responderSolicitud(req, res) {
 
       const datos = result.rows[0];
 
-      console.log('Datos del contrato:', datos); // 🔍 Para depuración
-
       const nombrePDF = await generarContratoPDF(datos, fechaInicio);
 
-      await db.query(`
+      await query(`
         INSERT INTO contratos (alquiler_id, propietario_id, inquilino_id, casa_id, fecha_inicio, contenido)
         VALUES ($1, $2, $3, $4, NOW(), $5)
       `, [
@@ -97,7 +89,7 @@ async function responderSolicitud(req, res) {
         nombrePDF
       ]);
 
-      await db.query(`
+      await query(`
         UPDATE casas SET disponible = false WHERE id = $1
       `, [datos.casa_id]);
     }
@@ -109,8 +101,31 @@ async function responderSolicitud(req, res) {
   }
 }
 
+async function obtenerAlquilerAceptadoPorCasa(req, res) {
+  const { casa_id } = req.params;
+
+  try {
+    const resultado = await query(`
+      SELECT *
+      FROM alquileres
+      WHERE casa_id = $1 AND estado = 'aceptado'
+      LIMIT 1
+    `, [casa_id]);
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json(null); // No hay alquiler aceptado
+    }
+
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    console.error('Error al obtener alquiler aceptado:', error);
+    res.status(500).json({ error: 'Error interno al obtener alquiler aceptado.' });
+  }
+}
+
 module.exports = {
   registrarAlquiler,
   responderSolicitud,
-  obtenerSolicitudesDelDueno
+  obtenerSolicitudesDelDueno,
+  obtenerAlquilerAceptadoPorCasa
 };

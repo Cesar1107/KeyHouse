@@ -1,52 +1,67 @@
 const express = require('express');
 const config = require('./config');
 const morgan = require('morgan');
-const alquileresRoutes = require('./modulos/alquileres/rutas');
-const usuarios = require('./modulos/usuarios/rutas');
-const casas = require("./modulos/casas/rutas");
 const cors = require('cors');
+const path = require('path');
+require('dotenv').config();
+
 const app = express();
+
+// Middlewares personalizados
+const csp = require('./middleware/csp');
 const error_red = require('./red/errors');
+
+// Importación de rutas
+const usuariosRuta = require('./modulos/usuarios/rutas');
+const casasRuta = require('./modulos/casas/rutas');
+const alquileresRuta = require('./modulos/alquileres/rutas');
 const favoritosRuta = require('./modulos/favoritos/rutas');
 
-app.use(cors({ origin: 'http://localhost:3000' })); // Permitir solo solicitudes desde el frontend
+// Conexión a la base de datos
+const { query } = require('./DB/db'); // importamos solo la función query
 
-// Nueva ruta para registrar casas
-app.use("/api/casas", casas);
-
-// Servir imágenes estáticamente
-app.use("/uploads", express.static("uploads"));
-
-//Middlewares
+// Middleware general
+app.use(csp); // Política de seguridad de contenido
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuración
+// Configuración de puerto (importante para index.js)
 app.set('port', config.app.port);
 
-// Rutas conexion 
-app.use('/api/usuarios', usuarios);
-
-// Asigna las rutas
-app.use(error_red)
-
-// Ruta en el backend para obtener los favoritos de un usuario
-app.get('/api/favoritos', (req, res) => {
-    const usuario_id = req.user.id; // Suponiendo que tienes una forma de obtener el id del usuario
-    const query = 'SELECT * FROM casas WHERE id IN (SELECT casa_id FROM favoritos WHERE usuario_id = $1)';
-    pool.query(query, [usuario_id], (err, result) => {
-      if (err) {
-        console.error('Error al obtener los favoritos', err);
-        return res.status(500).json({ error: 'Error al obtener los favoritos' });
-      }
-      res.json(result.rows); // Devuelve las casas favoritas
-    });
-});
-
-// Ruta para eliminar favoritos
+// Rutas API
+app.use('/api/usuarios', usuariosRuta);
+app.use('/api/casas', casasRuta);
+app.use('/api/alquileres', alquileresRuta);
 app.use('/api/favoritos', favoritosRuta);
 
-app.use('/api/alquileres', alquileresRoutes);
+// Ruta adicional para obtener favoritos de un usuario
+app.get('/api/favoritos', async (req, res) => {
+  const usuario_id = req.query.usuario_id;
+  if (!usuario_id) {
+    return res.status(400).json({ error: 'Falta el parámetro usuario_id' });
+  }
+
+  try {
+    const queryStr = `
+      SELECT * FROM casas 
+      WHERE id IN (
+        SELECT casa_id FROM favoritos WHERE usuario_id = $1
+      )
+    `;
+    const result = await query(queryStr, [usuario_id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al obtener los favoritos:', err);
+    res.status(500).json({ error: 'Error al obtener los favoritos' });
+  }
+});
+
+// Servir imágenes estáticamente desde la carpeta /uploads
+app.use("/uploads", express.static("uploads"));
+
+// Middleware de manejo de errores (debe ir al final)
+app.use(error_red);
 
 module.exports = app;
