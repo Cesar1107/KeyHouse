@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { GoogleMap, LoadScript, Marker, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, LoadScriptNext, Marker, Autocomplete } from '@react-google-maps/api';
 import '../styles/PublicarPropiedad.css';
 
 const containerStyle = {
@@ -136,7 +136,7 @@ const PublicarPropiedad = () => {
 
         <div className="form-group">
           <label htmlFor="ubicacion">Ubicación</label>
-          <LoadScript
+          <LoadScriptNext
             googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
             libraries={['places']}
             loadingElement={<div>Cargando mapa...</div>}
@@ -159,7 +159,7 @@ const PublicarPropiedad = () => {
             >
               {posicion && <Marker position={posicion} />}
             </GoogleMap>
-          </LoadScript>
+          </LoadScriptNext>
         </div>
 
         <div className="form-group">
