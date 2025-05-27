@@ -113,24 +113,6 @@ El sistema incorpora las siguientes medidas de seguridad:
 - **Manejo Seguro de Archivos**: Validación de tamaño e imágenes subidas
 - **Manejo de Errores**: Sistema centralizado para manejar errores de forma segura
 
-**Pendientes de implementar**:
-- Encriptación de contraseñas mediante hash+salt
-- Autenticación basada en tokens con expiración
-- Validaciones robustas de entrada
-- Cabeceras HTTP de seguridad
-- Protecciones contra XSS y CSRF
-
-## 📱 Capturas de Pantalla
-
-### Página de Inicio
-![Home Page](https://via.placeholder.com/800x400?text=Página+de+Inicio)
-
-### Detalle de Propiedad
-![Property Detail](https://via.placeholder.com/800x400?text=Detalle+de+Propiedad)
-
-### Panel de Usuario
-![User Dashboard](https://via.placeholder.com/800x400?text=Panel+de+Usuario)
-
 ## 📖 Guía de Uso
 
 ### Para Propietarios
@@ -177,10 +159,9 @@ Este proyecto está licenciado bajo la Licencia MIT. Ver archivo `LICENSE` para 
 
 ## 👥 Equipo
 
-- Samuel Hincapié - Frontend Developer
-- Laura Rodríguez - Backend Developer
-- Daniel Torres - UX/UI Designer
-- Carolina Gómez - Project Manager
+- César David Peñaranda Melo - Frontend Beginner Developer- UX/UI Designer Beginner
+- Kevin Alexis Lorza Ramirez - Backend Beginner Developer - UX/UI Designer Beginner
+- Samuel Escobar Rivera - Frontend Beginner Developer - UX/UI Designer Beginner
 
 ## 📞 Contacto
 
