@@ -159,9 +159,9 @@ Este proyecto está licenciado bajo la Licencia MIT. Ver archivo `LICENSE` para 
 
 ## 👥 Equipo
 
-- César David Peñaranda Melo - Frontend Beginner Developer- UX/UI Designer Beginner
-- Kevin Alexis Lorza Ramirez - Backend Beginner Developer - UX/UI Designer Beginner
-- Samuel Escobar Rivera - Frontend Beginner Developer - UX/UI Designer Beginner
+- César David Peñaranda Melo - Entry-Level Frontend Developer- UX/UI Designer (Beginner)
+- Kevin Alexis Lorza Ramirez - Entry-Level Backend Developer - UX/UI Designer (Beginner)
+- Samuel Escobar Rivera - Entry-Level Frontend Developer - UX/UI Designer (Beginner)
 
 ## 📞 Contacto
 
