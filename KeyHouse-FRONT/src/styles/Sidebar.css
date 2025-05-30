@@ -1,0 +1,59 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 30%;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.sidebar button {
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+body.high-contrast {
+  background-color: black !important;
+  color: yellow !important;
+}
+
+body.high-contrast button {
+  background-color: yellow !important;
+  color: black !important;
+}
+
+/* Estilos generales de alto contraste */
+body.high-contrast,
+body.high-contrast * {
+  background-color: black !important;
+  color: yellow !important;
+  border-color: white !important;
+}
+
+/* Botones */
+body.high-contrast button {
+  background-color: yellow !important;
+  color: black !important;
+  border: 2px solid white !important;
+}
+
+/* Enlaces */
+body.high-contrast a {
+  color: cyan !important;
+}
+
+/* Tarjetas, contenedores comunes */
+body.high-contrast .card,
+body.high-contrast .contenedor,
+body.high-contrast .navbar,
+body.high-contrast .footer {
+  background-color: #111 !important;
+  color: yellow !important;
+  border: 1px solid white !important;
+}

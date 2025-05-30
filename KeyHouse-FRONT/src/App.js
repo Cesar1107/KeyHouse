@@ -13,12 +13,14 @@ import MisPropiedades from './components/MisPropiedades';
 import EditarPropiedad from './components/EditarPropiedad';
 import PublicarPropiedad from './components/PublicarPropiedad';
 import Solicitudes from './components/Solicitudes';
+import Sidebar from './components/Sidebar';
 
 function App() {
   const usuario = localStorage.getItem("usuario_id");
 
     return (
     <Router>
+      <Sidebar />
       <Routes>
         <Route path="/favoritos" element={<Favorites />} />
         <Route path="/perfil" element={<Profile />} />
