@@ -59,6 +59,8 @@ build/Release
 
 # Dependency directories
 node_modules/
+KeyHouse-FRONT/node_modules/
+KeyHouse-BACK/node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
