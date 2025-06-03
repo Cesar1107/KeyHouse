@@ -1,5 +1,5 @@
-// modulos/reportes/controlador.js
 const db = require('../../DB/db');
+const path = require('path');
 
 // Crear nuevo reporte
 const crearReporte = async (req, res) => {
@@ -26,7 +26,8 @@ const crearReporte = async (req, res) => {
       return res.status(400).json({ error: 'IDs inválidos.' });
     }
 
-    const imagen = req.file ? req.file.path : null;
+    // Guardar solo el nombre del archivo, no la ruta completa
+    const imagen = req.file ? req.file.filename : null;
 
     const result = await db.query(
       `INSERT INTO reportes 
@@ -43,10 +44,23 @@ const crearReporte = async (req, res) => {
   }
 };
 
-// Obtener todos los reportes (admin)
+// Obtener todos los reportes (admin) con joins para mostrar datos amigables
 const obtenerReportes = async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM reportes ORDER BY id DESC');
+    const result = await db.query(`
+      SELECT 
+        r.*,
+        u1.nombre AS remitente_nombre,
+        u1.email AS remitente_email,
+        u2.nombre AS denunciado_nombre,
+        u2.email AS denunciado_email,
+        c.ubicacion AS casa_direccion
+      FROM reportes r
+      LEFT JOIN usuarios u1 ON r.remitente_id = u1.id_usuario
+      LEFT JOIN usuarios u2 ON r.denunciado_id = u2.id_usuario
+      LEFT JOIN casas c ON r.casa_id = c.id
+      ORDER BY r.id DESC
+    `);
     res.json(result.rows);
   } catch (error) {
     console.error('Error al obtener reportes:', error);
@@ -59,7 +73,7 @@ const actualizarEstadoReporte = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
 
-  if (!['pendiente', 'resuelto', 'ignorado'].includes(estado)) {
+  if (!['pendiente', 'resuelto', 'rechazado'].includes(estado)) {
     return res.status(400).json({ error: 'Estado no válido.' });
   }
 

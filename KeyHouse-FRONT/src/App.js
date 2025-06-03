@@ -15,6 +15,7 @@ import PublicarPropiedad from './components/PublicarPropiedad';
 import Solicitudes from './components/Solicitudes';
 import Sidebar from './components/Sidebar';
 import Reportes from './components/Reportes';
+import ReportesAdmin from "./components/ReportesAdmin";
 
 function App() {
   const usuario = localStorage.getItem("usuario_id");
@@ -36,6 +37,7 @@ function App() {
           <Route path="/casa/:id" element={<DetalleCasa />} />
           <Route path="home" element={<Home />} />
           <Route path="/solicitudes" element={<Solicitudes idDueno={usuario} />} />
+          <Route path="/reportes-admin" element={<ReportesAdmin />} />
 
         </Route>
         <Route path="/mis-propiedades" element={<MisPropiedades />} />

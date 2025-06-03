@@ -1,0 +1,78 @@
+.reportes-container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.reportes-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.reportes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.reportes-table th,
+.reportes-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reportes-table th {
+  background-color: #f3f4f6;
+  color: #111827;
+  font-weight: 600;
+}
+
+.reportes-table tr:hover {
+  background-color: #f1f5f9;
+}
+
+.reportes-table td a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.reportes-table td a:hover {
+  text-decoration: underline;
+}
+
+.reportes-table button {
+  padding: 0.4rem 0.8rem;
+  margin-bottom: 0.3rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.reportes-table button:first-child {
+  background-color: #10b981; /* verde */
+}
+
+.reportes-table button:first-child:hover {
+  background-color: #059669;
+}
+
+.reportes-table button:last-child {
+  background-color: #ef4444; /* rojo */
+}
+
+.reportes-table button:last-child:hover {
+  background-color: #dc2626;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280;
+}

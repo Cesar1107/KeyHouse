@@ -60,8 +60,10 @@ app.get('/api/favoritos', async (req, res) => {
   }
 });
 
-// Servir imágenes estáticamente desde la carpeta /uploads
-app.use("/uploads", express.static("uploads"));
+// Servir imágenes estáticamente desde la carpeta KeyHouse-BACK/uploads
+const uploadsPath = path.resolve(__dirname, '../uploads');
+console.log('Sirviendo uploads desde:', uploadsPath);
+app.use('/uploads', express.static(uploadsPath));
 
 // Middleware de manejo de errores (debe ir al final)
 app.use(error_red);

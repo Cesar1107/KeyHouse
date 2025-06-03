@@ -9,18 +9,22 @@ const {
   actualizarEstadoReporte
 } = require('./controlador');
 
+// Configuración de multer para guardar en KeyHouse-BACK/uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads'));
+    // __dirname apunta a modulos/reportes/, entonces ../../uploads apunta a KeyHouse-BACK/uploads
+    cb(null, path.resolve(__dirname, '../../../uploads'));
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    // Evitar problemas con espacios y caracteres raros
+    const safeName = file.originalname.replace(/\s+/g, '-');
+    cb(null, Date.now() + '-' + safeName);
   }
 });
 
 const upload = multer({ storage });
 
-// Crear reporte
+// Crear reporte con imagen
 router.post('/', upload.single('imagen'), crearReporte);
 
 // Obtener todos los reportes (admin)
