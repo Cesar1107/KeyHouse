@@ -25,9 +25,9 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      <button onClick={toggleContrast}>Alto Contraste</button>
-      <button onClick={increaseFont}>Aumentar Letra</button>
-      <button onClick={decreaseFont}>Disminuir Letra</button>
+        <button onClick={toggleContrast} title="Modo alto contraste">🌓</button>
+        <button onClick={increaseFont} aria-label="Aumentar tamaño de letra">A➕</button>
+        <button onClick={decreaseFont} aria-label="Disminuir tamaño de letra">A➖</button>
     </div>
   );
 };

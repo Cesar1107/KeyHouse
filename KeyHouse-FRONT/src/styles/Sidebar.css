@@ -13,8 +13,9 @@
 }
 
 .sidebar button {
-  padding: 10px;
-  font-size: 14px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
   cursor: pointer;
 }
 
