@@ -12,13 +12,25 @@ const DetalleCasa = () => {
   const [esFavorito, setEsFavorito] = useState(false);
   const [loading, setLoading] = useState(true);
   const [alquiler, setAlquiler] = useState(null);
-
+  const [denunciadoId, setDenunciadoId] = useState(null);
   const usuario_id = localStorage.getItem('usuario_id');
 
   const fetchAlquiler = async () => {
     try {
       const response = await axios.get(`http://localhost:4000/api/alquileres/estado/${id}`);
-      setAlquiler(response.data); // Suponemos que retorna null o un objeto con usuario_id y estado
+      const alquilerData = response.data;
+      setAlquiler(alquilerData);
+
+      if (alquilerData) {
+        if (esDuenio) {
+          // dueño reporta al inquilino
+          setDenunciadoId(alquilerData.usuario_id_inquilino);
+        } else if (esInquilinoAceptado) {
+          // inquilino reporta al dueño
+          setDenunciadoId(casa.usuario_id);
+        }
+      }
+
     } catch (error) {
       console.error('Error al consultar el estado del alquiler:', error);
     }
@@ -64,6 +76,20 @@ const DetalleCasa = () => {
     init();
   }, [id]);
 
+  const guardarDatosReporte = () => {
+    // denunciante_id o el usuario al que se va a reportar
+    // Aquí defines el id del usuario que quieres denunciar (ejemplo: dueño o inquilino)
+    const denunciado_id = casa.usuario_id; // o el id del inquilino del alquiler, según el caso
+    const alquiler_id = alquiler?.id;
+    const casa_id = casa.id;
+
+    localStorage.setItem('denunciado_id', denunciado_id);
+    localStorage.setItem('alquiler_id', alquiler_id);
+    localStorage.setItem('casa_id', casa_id);
+    
+    // Luego podrías redirigir a la página de reportes, si quieres
+    window.location.href = '/reportes'; // o usar history.push('/reportes') si usas react-router
+  };
 
   const handleAgregarFavorito = async () => {
     if (!usuario_id) return setMensaje('Debes iniciar sesión para agregar a favoritos.');
@@ -229,14 +255,15 @@ const DetalleCasa = () => {
                 <i className="fas fa-key"></i> Alquilar
               </button>
             )}
-            {duenioPuedeReportar && (
-              <button className="btn btn-reportar">
-                <i className="fas fa-flag"></i> Reportar al inquilino
-              </button>
-            )}
+            <button 
+              className="btn btn-reportar" 
+              onClick={guardarDatosReporte}
+            >
+              <i className="fas fa-flag"></i> Reportar al inquilino
+            </button>
 
             {esInquilinoAceptado && (
-              <button className="btn btn-reportar">
+              <button className="btn btn-reportar" onClick={guardarDatosReporte}>
                 <i className="fas fa-flag"></i> Reportar al dueño
               </button>
             )}

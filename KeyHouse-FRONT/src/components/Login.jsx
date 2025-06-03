@@ -43,6 +43,7 @@ const Login = () => {
             telefono: user.telefono || "",
             edad: user.edad || "",
             bio: user.bio || "",
+            admin: user.admin || false,
           })
         );
         // Guardar estado de login

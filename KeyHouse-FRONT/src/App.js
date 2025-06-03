@@ -14,6 +14,7 @@ import EditarPropiedad from './components/EditarPropiedad';
 import PublicarPropiedad from './components/PublicarPropiedad';
 import Solicitudes from './components/Solicitudes';
 import Sidebar from './components/Sidebar';
+import Reportes from './components/Reportes';
 
 function App() {
   const usuario = localStorage.getItem("usuario_id");
@@ -27,6 +28,9 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reportes" element={<Reportes />} />
+        
+        {/* Rutas protegidas */}
         <Route path="/" element={<Layout />}>
           <Route path="/sobre" element={<SobreNosotros />} />
           <Route path="/casa/:id" element={<DetalleCasa />} />

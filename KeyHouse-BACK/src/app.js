@@ -16,6 +16,7 @@ const usuariosRuta = require('./modulos/usuarios/rutas');
 const casasRuta = require('./modulos/casas/rutas');
 const alquileresRuta = require('./modulos/alquileres/rutas');
 const favoritosRuta = require('./modulos/favoritos/rutas');
+const reportesRuta = require('./modulos/reportes/rutas');
 
 // Conexión a la base de datos
 const { query } = require('./DB/db'); // importamos solo la función query
@@ -35,6 +36,7 @@ app.use('/api/usuarios', usuariosRuta);
 app.use('/api/casas', casasRuta);
 app.use('/api/alquileres', alquileresRuta);
 app.use('/api/favoritos', favoritosRuta);
+app.use('/api/reportes', reportesRuta);
 
 // Ruta adicional para obtener favoritos de un usuario
 app.get('/api/favoritos', async (req, res) => {

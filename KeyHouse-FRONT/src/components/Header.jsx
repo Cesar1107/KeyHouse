@@ -13,6 +13,7 @@ const Header = () => {
   const [miHogarCasaId, setMiHogarCasaId] = useState(null); // Aquí guardaremos el id de la casa
   const navigate = useNavigate();
   const location = useLocation();
+  const [esAdmin, setEsAdmin] = useState(false);
 
   useEffect(() => {
     const savedSearch = localStorage.getItem('searchTerm');
@@ -28,7 +29,8 @@ const Header = () => {
         const parsedData = JSON.parse(userData);
         setUserName(parsedData.nombre);
         setIsLoggedIn(true);
-        fetchAlquilerAceptado(parsedData.id_usuario); // Aquí pasamos el id usuario
+        fetchAlquilerAceptado(parsedData.id_usuario);
+        setEsAdmin(parsedData.admin === true); // Nuevo
       } catch (error) {
         console.error("Error al procesar datos del usuario:", error);
       }
@@ -146,7 +148,9 @@ const Header = () => {
             <Link to="/favoritos" className="nav-item">Favoritos</Link>
             <Link to="/mis-propiedades" className="nav-item">Mis Propiedades</Link>
             <Link to="/solicitudes" className="nav-item">Solicitudes</Link>
-            
+            {isLoggedIn && esAdmin && (
+            <Link to="/reportes-admin" className="nav-item">Reportes</Link>
+          )}
           </>
         )}
         <Link to="/perfil" className="nav-item user-profile">
