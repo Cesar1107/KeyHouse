@@ -1,0 +1,29 @@
+.inversionistas {
+  background-color: #f9fafb;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+}
+
+.inversionistas-content {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.inversionistas-content h1 {
+  font-size: 2.5rem;
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+.inversionistas-content p {
+  font-size: 1.1rem;
+  color: #555;
+}

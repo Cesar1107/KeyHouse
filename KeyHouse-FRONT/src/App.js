@@ -16,6 +16,20 @@ import Solicitudes from './components/Solicitudes';
 import Sidebar from './components/Sidebar';
 import Reportes from './components/Reportes';
 import ReportesAdmin from "./components/ReportesAdmin";
+import CentroDeAyuda from "./components/CentroDeAyuda";
+import Seguridad from "./components/Seguridad";
+import ProblemasReservas from "./components/ProblemasReservas";
+import ApoyoDiscapacitados from "./components/ApoyoDiscapacitados";
+import OpcionesCancelacion from "./components/OpcionesCancelacion";
+import ConsejosArrendadores from "./components/ConsejosArrendadores";
+import RecursosAnfitriones from "./components/RecursosAnfitriones";
+import GarantiaKeyhouse from "./components/GarantiaKeyhouse";
+import BuscarCoinquilino from "./components/BuscarCoinquilino";
+import PublicarApartamento from "./components/PublicarApartamento";
+import Blog from "./components/Blog";
+import TrabajaConNosotros from "./components/TrabajaConNosotros";
+import Inversionistas from "./components/Inversionistas";
+import EspaciosKeyhouseOrg from "./components/EspaciosKeyhouseOrg";
 
 function App() {
   const usuario = localStorage.getItem("usuario_id");
@@ -34,6 +48,21 @@ function App() {
         {/* Rutas protegidas */}
         <Route path="/" element={<Layout />}>
           <Route path="/sobre" element={<SobreNosotros />} />
+          <Route path="/ayuda" element={<CentroDeAyuda />} />
+          <Route path="/seguridad" element={<Seguridad />} />
+          <Route path="/cancelacion" element={<OpcionesCancelacion/>} />
+          <Route path="/problemas-reserva" element={<ProblemasReservas />} />
+          <Route path="/discapacitados" element={<ApoyoDiscapacitados />} />
+          <Route path="/publicar" element={<BuscarCoinquilino />} />
+          <Route path="/consejos" element={<ConsejosArrendadores />} />
+          <Route path="/recursos" element={<RecursosAnfitriones />} />
+          <Route path="/garantia" element={<GarantiaKeyhouse />} />
+          <Route path="/coinquilino" element={<PublicarApartamento />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/trabaja" element={<TrabajaConNosotros />} />
+          <Route path="/inversionistas" element={<Inversionistas />} />
+          <Route path="/espacios" element={<EspaciosKeyhouseOrg />} />      
+          <Route path="/discapacitados" element={<ApoyoDiscapacitados />} />
           <Route path="/casa/:id" element={<DetalleCasa />} />
           <Route path="home" element={<Home />} />
           <Route path="/solicitudes" element={<Solicitudes idDueno={usuario} />} />
