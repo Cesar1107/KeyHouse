@@ -171,10 +171,7 @@ const Login = () => {
           <div className="input-group">
             <div className="password-container">
               <label htmlFor="password">Contraseña</label>
-              <Link to="/forgot-password" className="forgot-password">
-                ¿Has olvidado tu contraseña?
-              </Link>
-              <input
+                <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 className="input-field"
@@ -202,6 +199,9 @@ const Login = () => {
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </div>
+              <Link to="/forgot-password" className="forgot-password">
+                ¿Has olvidado tu contraseña?
+              </Link>
             </div>
           </div>
 
