@@ -12,8 +12,9 @@ const DetalleCasa = () => {
   const [esFavorito, setEsFavorito] = useState(false);
   const [loading, setLoading] = useState(true);
   const [alquiler, setAlquiler] = useState(null);
-  const [denunciadoId, setDenunciadoId] = useState(null);
   const usuario_id = localStorage.getItem('usuario_id');
+  const [denunciadoId, setDenunciadoId] = useState(null);
+
 
   const fetchAlquiler = async () => {
     try {
@@ -24,7 +25,7 @@ const DetalleCasa = () => {
       if (alquilerData) {
         if (esDuenio) {
           // dueño reporta al inquilino
-          setDenunciadoId(alquilerData.usuario_id_inquilino);
+          setDenunciadoId(alquilerData.usuario_id);
         } else if (esInquilinoAceptado) {
           // inquilino reporta al dueño
           setDenunciadoId(casa.usuario_id);
@@ -77,19 +78,23 @@ const DetalleCasa = () => {
   }, [id]);
 
   const guardarDatosReporte = () => {
-    // denunciante_id o el usuario al que se va a reportar
-    // Aquí defines el id del usuario que quieres denunciar (ejemplo: dueño o inquilino)
-    const denunciado_id = casa.usuario_id; // o el id del inquilino del alquiler, según el caso
     const alquiler_id = alquiler?.id;
     const casa_id = casa.id;
 
-    localStorage.setItem('denunciado_id', denunciado_id);
+    let idDenunciado;
+    if (esDuenio && alquiler) {
+      idDenunciado = alquiler.usuario_id;
+    } else if (esInquilinoAceptado && casa) {
+      idDenunciado = casa.usuario_id;
+    }
+
+    localStorage.setItem('denunciado_id', idDenunciado);
     localStorage.setItem('alquiler_id', alquiler_id);
     localStorage.setItem('casa_id', casa_id);
-    
-    // Luego podrías redirigir a la página de reportes, si quieres
-    window.location.href = '/reportes'; // o usar history.push('/reportes') si usas react-router
+
+    window.location.href = '/reportes';
   };
+
 
   const handleAgregarFavorito = async () => {
     if (!usuario_id) return setMensaje('Debes iniciar sesión para agregar a favoritos.');
@@ -248,6 +253,18 @@ const DetalleCasa = () => {
             <h3>Descripción</h3>
             <p>{casa.descripcion}</p>
           </div>
+          {casa.reportes_dueno && casa.reportes_dueno.length > 0 && (
+            <div className="detalle-reportes">
+              <h3>Reportes sobre el dueño</h3>
+              <ul>
+                {casa.reportes_dueno.map((motivo, index) => (
+                  <li key={index}>
+                    <i className="fas fa-exclamation-triangle" style={{ color: 'crimson' }}></i> {motivo}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="detalle-acciones">
             {casa.disponible && parseInt(usuario_id) !== parseInt(casa.usuario_id) && (
@@ -255,17 +272,17 @@ const DetalleCasa = () => {
                 <i className="fas fa-key"></i> Alquilar
               </button>
             )}
-            <button 
-              className="btn btn-reportar" 
-              onClick={guardarDatosReporte}
-            >
-              <i className="fas fa-flag"></i> Reportar al inquilino
-            </button>
+            {duenioPuedeReportar && (
+              <button className="btn btn-reportar" onClick={guardarDatosReporte}>
+                <i className="fas fa-flag"></i> Reportar al inquilino
+              </button>
+            )}
 
             {esInquilinoAceptado && (
               <button className="btn btn-reportar" onClick={guardarDatosReporte}>
                 <i className="fas fa-flag"></i> Reportar al dueño
               </button>
+              
             )}
 
             {parseInt(usuario_id) !== parseInt(casa.usuario_id) && (

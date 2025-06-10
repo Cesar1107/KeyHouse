@@ -7,13 +7,13 @@ const Solicitudes = ({ idDueno }) => {
 
   useEffect(() => {
     axios
-        .get(`http://localhost:4000/api/alquileres/solicitudes/${idDueno}`)
-        .then((response) => {
-            setSolicitudes(response.data);
-        })
-        .catch((error) => {
-            console.error("Error al obtener solicitudes", error);
-        });
+      .get(`http://localhost:4000/api/alquileres/solicitudes/${idDueno}`)
+      .then((response) => {
+        setSolicitudes(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener solicitudes", error);
+      });
   }, [idDueno]);
 
   const responderSolicitud = async (alquilerId, decision) => {
@@ -22,7 +22,6 @@ const Solicitudes = ({ idDueno }) => {
         alquiler_id: alquilerId,
         decision: decision // "aceptado" o "rechazado"
       });
-      // Actualiza la lista después de responder
       setSolicitudes(solicitudes.filter(s => s.alquiler_id !== alquilerId));
     } catch (err) {
       console.error('Error al responder solicitud', err);
@@ -56,15 +55,27 @@ const Solicitudes = ({ idDueno }) => {
                 <p><strong>Casa:</strong> {s.titulo}</p>
                 <p><strong>Dirección:</strong> {s.ubicacion}</p>
                 <p><strong>Inquilino:</strong> {s.nombre_inquilino}</p>
+
+                {s.motivos_reportes?.length > 0 && (
+                  <div className="motivos-reportes">
+                    <strong>Reportes anteriores:</strong>
+                    <ul>
+                      {s.motivos_reportes.map((motivo, index) => (
+                        <li key={index}>{motivo}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="buttons-container">
-                  <button 
-                    className="accept" 
+                  <button
+                    className="accept"
                     onClick={() => responderSolicitud(s.alquiler_id, 'aceptado')}
                   >
                     Aceptar
                   </button>
-                  <button 
-                    className="reject" 
+                  <button
+                    className="reject"
                     onClick={() => responderSolicitud(s.alquiler_id, 'rechazado')}
                   >
                     Rechazar

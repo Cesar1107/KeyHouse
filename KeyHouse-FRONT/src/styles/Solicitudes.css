@@ -4,7 +4,23 @@
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-  
+.motivos-reportes {
+  margin-top: 10px;
+  background-color: #fef2f2;
+  border-left: 4px solid #dc2626;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.motivos-reportes ul {
+  padding-left: 20px;
+  margin: 4px 0 0;
+}
+
+.motivos-reportes li {
+  list-style-type: disc;
+}
+ 
 h2 {
     color: #2c3e50;
     font-size: 24px;

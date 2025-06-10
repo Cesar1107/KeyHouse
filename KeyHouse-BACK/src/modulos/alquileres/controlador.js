@@ -6,18 +6,22 @@ async function obtenerSolicitudesDelDueno(req, res) {
 
   try {
     const resultado = await query(`
-      SELECT 
-        a.id AS alquiler_id,
-        a.estado,
-        u.nombre AS nombre_inquilino,
-        c.ubicacion,
-        c.titulo,
-        c.imagen
-      FROM alquileres a
-      JOIN casas c ON a.casa_id = c.id
-      JOIN usuarios u ON a.usuario_id = u.id_usuario
-      WHERE c.usuario_id = $1 AND a.estado = 'pendiente'
-    `, [idDueno]);
+    SELECT 
+      a.id AS alquiler_id,
+      a.estado,
+      u.nombre AS nombre_inquilino,
+      c.ubicacion,
+      c.titulo,
+      c.imagen,
+      ARRAY_REMOVE(ARRAY_AGG(r.motivo), NULL) AS motivos_reportes
+    FROM alquileres a
+    JOIN casas c ON a.casa_id = c.id
+    JOIN usuarios u ON a.usuario_id = u.id_usuario
+    LEFT JOIN reportes r ON r.denunciado_id = a.usuario_id
+    WHERE c.usuario_id = $1 AND a.estado = 'pendiente'
+    GROUP BY a.id, a.estado, u.nombre, c.ubicacion, c.titulo, c.imagen
+  `, [idDueno]);
+
 
     res.json(resultado.rows);
   } catch (error) {

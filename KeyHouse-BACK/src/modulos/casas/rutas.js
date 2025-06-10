@@ -90,24 +90,41 @@ router.get("/usuario/:usuario_id", async (req, res) => {
     }
 });
   
-// Ruta para obtener una casa por su ID
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
-        const query = "SELECT * FROM casas WHERE id = $1";
-        const result = await db.query(query, [id]);
+        // Obtener la casa
+        const queryCasa = "SELECT * FROM casas WHERE id = $1";
+        const resultCasa = await db.query(queryCasa, [id]);
 
-        if (result.rows.length === 0) {
+        if (resultCasa.rows.length === 0) {
             return res.status(404).json({ error: "Casa no encontrada" });
         }
 
-        res.json(result.rows[0]);
+        const casa = resultCasa.rows[0];
+
+        // Obtener reportes hechos al dueño de esta casa
+        const queryReportes = `
+            SELECT DISTINCT motivo
+            FROM reportes
+            WHERE denunciado_id = $1
+        `;
+        const resultReportes = await db.query(queryReportes, [casa.usuario_id]);
+
+        // Extraer solo los motivos
+        const motivos = resultReportes.rows.map(r => r.motivo);
+
+        // Incluir los reportes en la respuesta
+        casa.reportes_dueno = motivos;
+
+        res.json(casa);
     } catch (error) {
         console.error("Error al obtener la casa:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
+
 
 // Ruta para registrar una casa
 router.post("/registrar", upload.array("imagen", 5), async (req, res) => {

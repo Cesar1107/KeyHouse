@@ -19,7 +19,9 @@ const FormularioReporte = () => {
     'Daños a la propiedad',
     'Comportamiento inapropiado',
     'Pago atrasado',
-    'Otro'
+    'Casa en mal estado',
+    'alquiler no autorizado',
+    'Desatención para el mantenimiento',
   ];
 
   const handleSubmit = async (e) => {
